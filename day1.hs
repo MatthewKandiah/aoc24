@@ -4,19 +4,43 @@ import Data.List -- for dropWhileEnd
 main :: IO ()
 main = do
   input <- readFile "input1.txt"
-  let output = solve input
-   in putStrLn $ show output
+  putStrLn "Part 1:"
+  let output1 = solve1 input
+   in putStrLn $ show output1
+  putStrLn "Part 2:"
+  let output2 = solve2 input
+   in putStrLn $ show output2
 
-solve :: String -> Integer
-solve input =
-  sum
-    $ absDiffColumns
-    $ sortColumns
-    $ toColumns
+processInput :: String -> ([Integer], [Integer])
+processInput input =
+  toColumns
     $ map toIntegers
     $ map toSplitLine
     $ filter isNotEmpty
     $ toLines input
+
+solve1 :: String -> Integer
+solve1 input = sum $ absDiffColumns $ sortColumns $ processInput input
+
+solve2 :: String -> Integer
+solve2 input = sum $ getSimilarityScores $ processInput input
+
+getSimilarityScores :: ([Integer], [Integer]) -> [Integer]
+getSimilarityScores (l, r) = map (getSimilarityScore r) l
+
+getSimilarityScore :: [Integer] -> Integer -> Integer
+getSimilarityScore lst n = (count lst n) * n
+
+count :: Eq a => [a] -> a -> Integer
+count lst x = aux 0 lst
+  where
+    aux acc l =
+      case l of
+        [] -> acc
+        h:t ->
+          if h == x
+            then aux (acc + 1) t
+            else aux acc t
 
 rev :: [a] -> [a]
 rev lst = aux [] lst
