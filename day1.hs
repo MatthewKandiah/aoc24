@@ -91,7 +91,7 @@ toIntegers :: (String, String) -> (Integer, Integer)
 toIntegers (left, right) = (read left, read right)
 
 toColumns :: [(a, a)] -> ([a], [a])
-toColumns = aux [] [] 
+toColumns = aux [] []
   where
     aux leftAcc rightAcc lrList =
       case lrList of
