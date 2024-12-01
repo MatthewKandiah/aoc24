@@ -6,18 +6,14 @@ main = do
   input <- readFile "input1.txt"
   putStrLn "Part 1:"
   let output1 = solve1 input
-   in putStrLn $ show output1
+   in print output1
   putStrLn "Part 2:"
   let output2 = solve2 input
-   in putStrLn $ show output2
+   in print output2
 
 processInput :: String -> ([Integer], [Integer])
 processInput input =
-  toColumns
-    $ map toIntegers
-    $ map toSplitLine
-    $ filter isNotEmpty
-    $ toLines input
+  toColumns $ map (toIntegers . toSplitLine) (filter isNotEmpty $ toLines input)
 
 solve1 :: String -> Integer
 solve1 input = sum $ absDiffColumns $ sortColumns $ processInput input
@@ -29,7 +25,7 @@ getSimilarityScores :: ([Integer], [Integer]) -> [Integer]
 getSimilarityScores (l, r) = map (getSimilarityScore r) l
 
 getSimilarityScore :: [Integer] -> Integer -> Integer
-getSimilarityScore lst n = (count lst n) * n
+getSimilarityScore lst n = count lst n * n
 
 count :: Eq a => [a] -> a -> Integer
 count lst x = aux 0 lst
@@ -43,7 +39,7 @@ count lst x = aux 0 lst
             else aux acc t
 
 rev :: [a] -> [a]
-rev lst = aux [] lst
+rev = aux []
   where
     aux :: [a] -> [a] -> [a]
     aux acc l =
@@ -52,7 +48,7 @@ rev lst = aux [] lst
         h:t -> aux (h : acc) t
 
 getNextLine :: String -> (String, String)
-getNextLine str = aux [] str
+getNextLine = aux []
   where
     aux :: String -> String -> (String, String)
     aux acc s =
@@ -64,12 +60,12 @@ getNextLine str = aux [] str
             else aux (h : acc) t
 
 toLines :: String -> [String]
-toLines str = aux [] str
+toLines = aux []
   where
     aux :: [String] -> String -> [String]
     aux acc s =
       let (next, rest) = getNextLine s
-       in if rest == []
+       in if null rest
             then rev (map strip (next : acc))
             else aux (next : acc) rest
 
@@ -77,14 +73,14 @@ isNotEmpty :: String -> Bool
 isNotEmpty str = str /= []
 
 toSplitLine :: String -> (String, String)
-toSplitLine str = aux [] str
+toSplitLine = aux []
   where
     aux :: String -> String -> (String, String)
     aux acc s =
       case s of
         [] -> (strip (rev acc), [])
         h:t ->
-          if (isSpace h)
+          if isSpace h
             then (strip (rev acc), strip t)
             else aux (h : acc) t
 
@@ -95,7 +91,7 @@ toIntegers :: (String, String) -> (Integer, Integer)
 toIntegers (left, right) = (read left, read right)
 
 toColumns :: [(a, a)] -> ([a], [a])
-toColumns input = aux [] [] input
+toColumns = aux [] [] 
   where
     aux leftAcc rightAcc lrList =
       case lrList of
