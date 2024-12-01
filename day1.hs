@@ -1,8 +1,8 @@
 main :: IO ()
 main = do
   input <- readFile "example1.txt"
-  let output = solve input
-   in putStrLn ("Answer: " ++ (show output))
+  let output = toLines input
+   in putStrLn $ show output
 
 solve :: String -> Integer
 solve input = 7
@@ -37,3 +37,4 @@ toLines str = aux [] str
        in if rest == []
             then rev (next : acc)
             else aux (next : acc) rest
+
