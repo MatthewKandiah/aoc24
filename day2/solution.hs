@@ -12,15 +12,7 @@ solve1 :: String -> Integer
 solve1 = toInteger . length . filter isSafe . processInput
 
 solve2 :: String -> Integer
-solve2 str = solve1 str + newSolve2 str
-  where
-    newSolve2 =
-      toInteger
-        . length
-        . filter (any (True &&))
-        . map (map isSafe . getDampedReports)
-        . filter (not . isSafe)
-        . processInput
+solve2 = toInteger . length . filter (any (True &&)) . map (map isSafe . getDampedReports) . processInput
 
 getDampedReports :: Report -> [Report]
 getDampedReports = aux [] []
