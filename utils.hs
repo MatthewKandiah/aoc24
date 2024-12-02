@@ -27,3 +27,4 @@ toLines = aux []
 
 strip :: String -> String
 strip = dropWhile isSpace . dropWhileEnd isSpace
+
