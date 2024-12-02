@@ -1,9 +1,10 @@
 import Data.Char -- for isSpace
 import Data.List -- for dropWhileEnd
+import Utils
 
 main :: IO ()
 main = do
-  input <- readFile "input1.txt"
+  input <- readFile "day1/input.txt"
   putStrLn "Part 1:"
   let output1 = solve1 input
    in print output1
@@ -47,28 +48,6 @@ rev = aux []
         [] -> acc
         h:t -> aux (h : acc) t
 
-getNextLine :: String -> (String, String)
-getNextLine = aux []
-  where
-    aux :: String -> String -> (String, String)
-    aux acc s =
-      case s of
-        [] -> (rev acc, [])
-        h:t ->
-          if h == '\n'
-            then (rev acc, t)
-            else aux (h : acc) t
-
-toLines :: String -> [String]
-toLines = aux []
-  where
-    aux :: [String] -> String -> [String]
-    aux acc s =
-      let (next, rest) = getNextLine s
-       in if null rest
-            then rev (map strip (next : acc))
-            else aux (next : acc) rest
-
 isNotEmpty :: String -> Bool
 isNotEmpty str = str /= []
 
@@ -83,9 +62,6 @@ toSplitLine = aux []
           if isSpace h
             then (strip (rev acc), strip t)
             else aux (h : acc) t
-
-strip :: String -> String
-strip = dropWhile isSpace . dropWhileEnd isSpace
 
 toIntegers :: (String, String) -> (Integer, Integer)
 toIntegers (left, right) = (read left, read right)
