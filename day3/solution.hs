@@ -28,7 +28,7 @@ parseInput p = aux []
 parseInput1 = parseInput productP
 
 evaluate :: Value -> Integer
--- the fact this blows up for anything but value is probably a sign that Expr should probably be a separate type
+-- the fact this blows up for anything but value is probably a sign that Product should probably be a separate type
 evaluate (Product (x, y)) = x * y
 
 data Value
