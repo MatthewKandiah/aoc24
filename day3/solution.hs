@@ -6,12 +6,14 @@ main = do
   input <- readFile "day3/input.txt"
   let output1 = solve1 input
    in print output1
+  let output2 = solve2 input
+   in print output2
 
 solve1 :: String -> Integer
-solve1 = sum . map evaluate . parseInput
+solve1 = sum . map evaluate . parseInput1
 
-parseInput :: String -> [Value]
-parseInput = aux []
+parseInput :: Parser Value -> String -> [Value]
+parseInput p = aux []
   where
     aux acc input =
       case parsedValue of
@@ -21,11 +23,13 @@ parseInput = aux []
             _:t -> aux acc t
         Just (rest, token) -> aux (token : acc) rest
       where
-        parsedValue = runParser expressionP input
+        parsedValue = runParser p input
+
+parseInput1 = parseInput productP
 
 evaluate :: Value -> Integer
 -- the fact this blows up for anything but value is probably a sign that Expr should probably be a separate type
-evaluate (Expr (x, y)) = x * y
+evaluate (Product (x, y)) = x * y
 
 data Value
   = Mul
@@ -33,7 +37,9 @@ data Value
   | CloseParen
   | Comma
   | Num Integer
-  | Expr (Integer, Integer) -- represents valid mul(X,Y) expression with nothing else in it
+  | Product (Integer, Integer) -- represents valid mul(X,Y) expression with nothing else in it
+  | Do
+  | Dont
   deriving (Show, Eq)
 
 newtype Parser a = Parser
@@ -100,10 +106,39 @@ notNull (Parser p) =
 numberP :: Parser Value
 numberP = Num . read <$> notNull (spanP isDigit)
 
-expressionP = mulP *> openParenP *> pair <* closeParenP
+productP :: Parser Value
+productP = mulP *> openParenP *> pair <* closeParenP
   where
     pair =
-      (\(Num left) _ (Num right) -> Expr (left, right))
+      (\(Num left) _ (Num right) -> Product (left, right))
         <$> numberP
         <*> commaP
         <*> numberP
+
+-- Part 2
+doP = (\_ -> Do) <$> stringP "do()"
+
+dontP = (\_ -> Dont) <$> stringP "don't()"
+
+expressionP :: Parser Value
+expressionP = productP <|> doP <|> dontP
+
+parseInput2 :: String -> [Value]
+parseInput2 = parseInput expressionP
+
+evaluate2 :: [Value] -> Integer
+evaluate2 = aux 0 True
+  where
+    aux :: Integer -> Bool -> [Value] -> Integer
+    aux acc enabled lst =
+      case lst of
+        [] -> acc
+        Do:t -> aux acc True t
+        Dont:t -> aux acc False t
+        Product (x, y):t ->
+          if enabled
+            then aux (acc + x * y) enabled t
+            else aux acc enabled t
+
+solve2 :: String -> Integer
+solve2 = evaluate2 . parseInput2
