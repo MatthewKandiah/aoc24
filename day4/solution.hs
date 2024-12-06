@@ -107,10 +107,24 @@ solve2 str =
     $ processInput str
 
 toXs :: Puzzle -> [(String, String)]
-toXs p =  map (getX p) [(i, j) | i <- [1 .. (length $ cols p) - 2], j <- [1 .. (length $ rows p) - 2]]
+toXs p =
+  map
+    (getX p)
+    [ (i, j)
+    | i <- [1 .. (length $ cols p) - 2]
+    , j <- [1 .. (length $ rows p) - 2]
+    ]
 
 getX :: Puzzle -> (Int, Int) -> (String, String)
-getX p (x, y) = ([(rows p)!!(y-1)!!(x-1), (rows p)!!y!!x, (rows p)!!(y+1)!!(x+1)], [(rows p)!!(y+1)!!(x-1), (rows p)!!y!!x, (rows p)!!(y-1)!!(x+1)])
+getX p (x, y) =
+  ( [ (rows p) !! (y - 1) !! (x - 1)
+    , (rows p) !! y !! x
+    , (rows p) !! (y + 1) !! (x + 1)
+    ]
+  , [ (rows p) !! (y + 1) !! (x - 1)
+    , (rows p) !! y !! x
+    , (rows p) !! (y - 1) !! (x + 1)
+    ])
 
 masParser = stringP "MAS"
 
