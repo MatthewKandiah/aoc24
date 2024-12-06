@@ -1,31 +1,38 @@
-import Data.List
 import Control.Applicative
+import Data.List
+import Data.Maybe
 
 main :: IO ()
 main = do
-  input <- readFile "day4/example.txt"
+  input <- readFile "day4/input.txt"
   let output1 = solve1 input
    in print output1
   let output2 = solve2 input
    in print output2
 
 solve1 :: String -> Integer
-solve1 x = sum $ (map countXmas) $ (rows puzzle ++ cols puzzle ++ diagonals puzzle)
-  where puzzle = processInput x
+solve1 x =
+  sum $ (map countXmas) $ (rows puzzle ++ cols puzzle ++ diagonals puzzle)
+  where
+    puzzle = processInput x
 
 countXmas :: String -> Integer
 countXmas = aux 0
   where
-    aux count str = case parsedValue of
-      Nothing -> case str of
-        [] -> count
-        _:t -> aux count t
-      Just _ -> aux (count + 1) (tail str)
+    aux count str =
+      case parsedValue of
+        Nothing ->
+          case str of
+            [] -> count
+            _:t -> aux count t
+        Just _ -> aux (count + 1) (tail str)
       where
         parsedValue = runParser parser str
 
 xmasParser = stringP "XMAS"
+
 samxParser = stringP "SAMX"
+
 parser = xmasParser <|> samxParser
 
 --------------------------------------------------COPY-PASTE from DAY3----------------------------------------------------------
@@ -64,7 +71,6 @@ stringP :: String -> Parser String
 stringP = sequenceA . map charP
 
 --------------------------------------------------END COPY-PASTE from DAY3------------------------------------------------------
-
 data Puzzle = Puzzle
   { rows :: [String]
   , cols :: [String]
@@ -92,5 +98,22 @@ toDiags2 :: [String] -> [String]
 toDiags2 = toDiags1 . (map reverse)
 
 solve2 :: String -> Integer
-solve2 _ = 42
+solve2 str =
+  toInteger
+    $ length
+    $ (filter (\p -> (isJust $ fst p) && (isJust $ snd p)))
+    $ map (\(l, r) -> (runParser parser2 l, runParser parser2 r))
+    $ toXs
+    $ processInput str
 
+toXs :: Puzzle -> [(String, String)]
+toXs p =  map (getX p) [(i, j) | i <- [1 .. (length $ cols p) - 2], j <- [1 .. (length $ rows p) - 2]]
+
+getX :: Puzzle -> (Int, Int) -> (String, String)
+getX p (x, y) = ([(rows p)!!(y-1)!!(x-1), (rows p)!!y!!x, (rows p)!!(y+1)!!(x+1)], [(rows p)!!(y+1)!!(x-1), (rows p)!!y!!x, (rows p)!!(y-1)!!(x+1)])
+
+masParser = stringP "MAS"
+
+samParser = stringP "SAM"
+
+parser2 = masParser <|> samParser
